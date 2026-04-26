@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planner ENEM 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+:root{
+  --bg-950:#0a0d14;--bg-900:#0f1219;--bg-800:#161b27;--bg-700:#1e2535;--bg-600:#252d3e;
+  --border:rgba(255,255,255,0.07);--border-hover:rgba(255,255,255,0.15);
+  --text-primary:#e8eaf0;--text-secondary:#7b839a;--text-muted:#4a5068;
+  --accent:#6c8dff;--green:#4ade80;--green-bg:rgba(74,222,128,0.1);--green-border:rgba(74,222,128,0.25);
+  --gold:#fbbf24;--gold-bg:rgba(251,191,36,0.1);--gold-border:rgba(251,191,36,0.25);
+  --red:#f87171;--sidebar-w:220px;--radius:14px;--radius-sm:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Sora',sans-serif;background:var(--bg-950);color:var(--text-primary);display:flex;}
+#sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--bg-900);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 12px;transition:transform .3s ease;z-index:100;overflow-y:auto;}
+.logo{display:flex;align-items:center;gap:10px;padding:8px 10px 24px;}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),#a78bfa);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo-text{font-size:15px;font-weight:700;letter-spacing:-.3px;}.logo-sub{font-size:11px;color:var(--text-muted);}
+.nav-section{font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;padding:0 10px 8px;margin-top:8px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer;transition:all .15s;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:2px;}
+.nav-item:hover{background:var(--bg-700);color:var(--text-primary);}
+.nav-item.active{background:rgba(108,141,255,0.12);color:var(--accent);border:1px solid rgba(108,141,255,0.2);}
+.nav-item .icon{width:16px;height:16px;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;padding:1px 6px;border-radius:20px;font-weight:600;}
+.sidebar-footer{margin-top:auto;padding-top:16px;border-top:1px solid var(--border);}
+#main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+#header{position:sticky;top:0;z-index:50;background:rgba(10,13,20,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 28px;}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.page-title{font-size:20px;font-weight:700;letter-spacing:-.4px;}.page-sub{font-size:13px;color:var(--text-muted);margin-top:1px;}
+.recalc-btn{display:flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--accent),#a78bfa);border:none;color:#fff;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;padding:8px 16px;border-radius:var(--radius-sm);cursor:pointer;transition:opacity .15s;white-space:nowrap;}
+.recalc-btn:hover{opacity:.85;}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.stat-card{background:var(--bg-800);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+.stat-label{font-size:11px;color:var(--text-muted);font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px;}
+.stat-value{font-size:26px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:-1px;line-height:1;}
+.stat-value.green{color:var(--green);}.stat-value.blue{color:var(--accent);}.stat-value.gold{color:var(--gold);}.stat-value.red{color:var(--red);}
+.stat-sub{font-size:11px;color:var(--text-muted);margin-top:4px;}
+.progress-mini{height:3px;background:var(--bg-700);border-radius:2px;margin-top:10px;overflow:hidden;}
+.progress-mini-fill{height:100%;border-radius:2px;transition:width .6s ease;}
+#content{padding:24px 28px;flex:1;}
+.page{display:none;}.page.active{display:block;}
+
+/* CRONOGRAMA */
+.crono-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.fbtn{padding:6px 13px;border-radius:20px;border:1px solid var(--border);background:var(--bg-800);font-family:'Sora',sans-serif;font-size:12px;font-weight:600;color:var(--text-secondary);cursor:pointer;transition:all .15s;}
+.fbtn:hover{border-color:var(--border-hover);color:var(--text-primary);}
+.fbtn.active{background:rgba(108,141,255,0.12);border-color:rgba(108,141,255,0.35);color:var(--accent);}
+.week-block{margin-bottom:8px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);transition:border-color .2s;}
+.week-block.wk-done{border-color:var(--green-border);}
+.week-block.wk-current{border-color:rgba(108,141,255,0.45);box-shadow:0 0 0 1px rgba(108,141,255,0.12);}
+.week-header{display:flex;align-items:center;gap:12px;padding:13px 18px;cursor:pointer;background:var(--bg-800);transition:background .15s;user-select:none;}
+.week-header:hover{background:var(--bg-700);}
+.wk-current .week-header{background:rgba(108,141,255,0.06);}
+.wk-done .week-header{background:var(--green-bg);}
+.wk-num{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);min-width:56px;}
+.wk-badge{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;flex-shrink:0;}
+.wk-dates{font-size:12px;color:var(--text-muted);flex:1;}
+.wk-prog{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.wk-bar{width:80px;height:4px;background:var(--bg-700);border-radius:2px;overflow:hidden;}
+.wk-bar-fill{height:100%;border-radius:2px;transition:width .4s;}
+.wk-pct{font-size:12px;font-weight:600;font-family:'JetBrains Mono',monospace;min-width:34px;text-align:right;}
+.wk-arrow{font-size:12px;color:var(--text-muted);margin-left:6px;transition:transform .2s;display:inline-block;}
+.week-block.expanded .wk-arrow{transform:rotate(180deg);}
+.curr-tag{font-size:10px;font-weight:700;background:var(--accent);color:#fff;padding:2px 7px;border-radius:20px;}
+.week-days{display:none;background:var(--bg-900);border-top:1px solid var(--border);}
+.week-block.expanded .week-days{display:block;}
+.day-row{display:flex;align-items:stretch;border-bottom:1px solid var(--border);}
+.day-row:last-child{border-bottom:none;}
+.day-col{padding:13px 16px;min-width:100px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:3px;}
+.day-name{font-size:13px;font-weight:700;}.day-date{font-size:11px;color:var(--text-muted);}
+.today-tag{font-size:10px;font-weight:700;margin-top:4px;}
+.day-topics{flex:1;padding:13px 16px;display:flex;flex-direction:column;gap:7px;}
+.t-item{display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:var(--radius-sm);background:var(--bg-800);border:1px solid var(--border);cursor:pointer;transition:all .18s;}
+.t-item:hover{border-color:var(--border-hover);transform:translateX(2px);}
+.t-item.done{background:var(--green-bg);border-color:var(--green-border);}
+.t-item.done .t-text{text-decoration:line-through;color:var(--text-muted);}
+.t-check{width:18px;height:18px;border-radius:5px;border:2px solid var(--bg-600);background:var(--bg-700);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .18s;}
+.t-item.done .t-check{background:var(--green);border-color:var(--green);}
+.t-chk-svg{display:none;width:10px;height:10px;color:#000;}
+.t-item.done .t-chk-svg{display:block;}
+.t-text{font-size:12px;font-weight:500;flex:1;line-height:1.4;}
+.t-freq{font-size:10px;color:var(--text-muted);flex-shrink:0;}
+.rest-row{padding:14px 18px;font-size:13px;color:var(--text-muted);font-style:italic;}
+
+/* TÓPICOS PAGE */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;margin-bottom:28px;}
+.s-card{background:var(--bg-800);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.s-card:hover{border-color:var(--border-hover);transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.s-card.done{background:var(--green-bg);border-color:var(--green-border);}
+.s-card.done .s-title{text-decoration:line-through;color:var(--green);}
+.s-card.done::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);animation:shimmer 2s ease infinite;}
+@keyframes shimmer{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}
+.s-chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--bg-600);background:var(--bg-700);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .2s;}
+.s-card.done .s-chk{background:var(--green);border-color:var(--green);}
+.s-chk svg{display:none;width:12px;height:12px;color:#000;}
+.s-card.done .s-chk svg{display:block;}
+.s-info{flex:1;min-width:0;}.s-title{font-size:13px;font-weight:500;line-height:1.4;}
+.s-meta{display:flex;align-items:center;gap:6px;margin-top:5px;}
+.s-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;}
+.s-freq{font-size:10px;color:var(--text-muted);}
+.area-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.area-title{font-size:15px;font-weight:700;}
+.area-cnt{font-size:12px;color:var(--text-muted);background:var(--bg-800);padding:2px 8px;border-radius:20px;border:1px solid var(--border);}
+
+/* DASHBOARD */
+.meta-card{background:var(--bg-800);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:16px;}
+.meta-ttl{font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px;}
+.prog-track{height:8px;background:var(--bg-700);border-radius:4px;margin-top:14px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),#a78bfa);transition:width .8s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;}
+.prog-fill::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:sweep 2s ease infinite;}
+@keyframes sweep{0%{left:-100%}100%{left:200%}}
+.status-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;margin-top:12px;}
+.st-ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+.st-warn{background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-border);}
+.st-alert{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.25);}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+
+/* REDAÇÃO */
+.red-card{background:var(--bg-800);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px;transition:border-color .2s;}
+.red-card:hover{border-color:var(--border-hover);}
+.red-title{font-size:15px;font-weight:600;margin-bottom:6px;}
+.red-desc{font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;}
+.red-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.stg-btn{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-700);cursor:pointer;font-family:'Sora',sans-serif;font-size:12px;font-weight:500;color:var(--text-secondary);transition:all .15s;}
+.stg-btn:hover{border-color:var(--border-hover);color:var(--text-primary);}
+.stg-btn.active{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+
+/* MOBILE */
+#mob-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(15,18,25,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:8px 8px calc(8px + env(safe-area-inset-bottom));}
+.mob-nav{display:flex;justify-content:space-around;}
+.mob-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:10px;font-weight:600;color:var(--text-muted);transition:all .15s;}
+.mob-item.active{color:var(--accent);}
+.mob-item svg{width:18px;height:18px;}
+#mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;}
+
+@media(max-width:768px){
+  #sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);width:240px;padding-bottom:80px;}
+  #sidebar.open{transform:translateX(0);}
+  #mob-bar{display:block;}
+  #main{padding-bottom:64px;}
+  #header{padding:14px 16px;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  #content{padding:16px;}
+  .page-title{font-size:17px;}
+  .cards-grid{grid-template-columns:1fr;}
+  .dash-grid{grid-template-columns:1fr;}
+  .wk-bar{display:none;}
+  .day-col{min-width:78px;padding:10px 12px;}
+  .day-topics{padding:10px 12px;}
+}
+#main::-webkit-scrollbar{width:5px;}
+#main::-webkit-scrollbar-track{background:transparent;}
+#main::-webkit-scrollbar-thumb{background:var(--bg-700);border-radius:3px;}
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg-700);border:1px solid var(--border);padding:10px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div class="logo">
+    <div class="logo-icon"><i data-lucide="graduation-cap" style="width:18px;height:18px;color:#fff;"></i></div>
+    <div><div class="logo-text">Planner ENEM</div><div class="logo-sub">2026</div></div>
+  </div>
+  <div class="nav-section">Navegação</div>
+  <div class="nav-item active" onclick="nav('dashboard',this)"><i data-lucide="layout-dashboard" class="icon"></i>Dashboard</div>
+  <div class="nav-item" onclick="nav('cronograma',this)"><i data-lucide="calendar-days" class="icon"></i>Cronograma</div>
+  <div class="nav-item" onclick="nav('topicos',this)"><i data-lucide="book-open" class="icon"></i>Tópicos<span class="nav-badge" id="sb-badge">—</span></div>
+  <div class="nav-item" onclick="nav('redacao',this)"><i data-lucide="pen-line" class="icon"></i>Redação</div>
+  <div class="nav-section" style="margin-top:12px;">Extras</div>
+  <div class="nav-item" onclick="nav('simulados',this)"><i data-lucide="clipboard-list" class="icon"></i>Simulados</div>
+  <div class="sidebar-footer">
+    <div class="nav-item" style="color:var(--text-muted);" onclick="resetAll()"><i data-lucide="rotate-ccw" class="icon"></i>Resetar tudo</div>
+  </div>
+</nav>
+<div id="mob-overlay" onclick="closeSidebar()"></div>
+
+<main id="main">
+  <header id="header">
+    <div class="header-top">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button id="hamburger" onclick="toggleSidebar()" style="display:none;background:none;border:none;cursor:pointer;color:var(--text-secondary);padding:4px;"><i data-lucide="menu" style="width:20px;height:20px;"></i></button>
+        <div><div class="page-title" id="pg-title">Dashboard</div><div class="page-sub" id="pg-sub">Visão geral do plano</div></div>
+      </div>
+      <button class="recalc-btn" onclick="recalc()"><i data-lucide="zap" style="width:13px;height:13px;"></i>Recalcular Rota</button>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Dias Restantes</div><div class="stat-value red" id="s-days">—</div><div class="stat-sub">até 08/11/2026</div></div>
+      <div class="stat-card"><div class="stat-label">Conclusão Geral</div><div class="stat-value blue" id="s-pct">0%</div><div class="progress-mini"><div class="progress-mini-fill" id="s-bar" style="background:var(--accent);width:0%;"></div></div></div>
+      <div class="stat-card"><div class="stat-label">Tópicos Feitos</div><div class="stat-value green" id="s-done">0</div><div class="stat-sub" id="s-of">de — tópicos</div></div>
+      <div class="stat-card"><div class="stat-label">Meta Diária</div><div class="stat-value gold" id="s-meta">—</div><div class="stat-sub" id="s-meta-sub">tópicos/dia</div></div>
+    </div>
+  </header>
+
+  <div id="content">
+    <div id="page-dashboard" class="page active">
+      <div class="dash-grid">
+        <div class="meta-card">
+          <div class="meta-ttl">Progresso Total</div>
+          <div style="font-size:36px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--accent);" id="d-pct">0%</div>
+          <div style="font-size:13px;color:var(--text-secondary);margin-top:4px;" id="d-done-txt">0 de 0 concluídos</div>
+          <div class="prog-track"><div class="prog-fill" id="d-bar" style="width:0%;"></div></div>
+          <div id="d-status" class="status-badge st-warn">
+            <i data-lucide="clock" style="width:13px;height:13px;"></i>
+            <span id="d-status-txt">Começando...</span>
+          </div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-ttl">Semana Atual</div>
+          <div id="d-week"></div>
+        </div>
+      </div>
+      <div class="dash-grid">
+        <div class="meta-card">
+          <div class="meta-ttl">Progresso por Área</div>
+          <div id="d-areas" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-ttl">Dica de Hoje</div>
+          <div id="d-tip" style="font-size:14px;line-height:1.7;color:var(--text-secondary);"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-cronograma" class="page">
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:16px;">Uma matéria por semana, do início até a véspera do ENEM. Clique em qualquer semana para expandir e marcar os tópicos diários.</p>
+      <div class="crono-filters" id="crono-filters">
+        <button class="fbtn active" onclick="filterCrono('all',this)">Todas</button>
+        <button class="fbtn" onclick="filterCrono('current',this)">Semana Atual</button>
+        <button class="fbtn" onclick="filterCrono('pending',this)">Pendentes</button>
+        <button class="fbtn" onclick="filterCrono('done',this)">Concluídas</button>
+        <button class="fbtn" onclick="filterCrono('mat',this)" style="color:#6c8dff;border-color:rgba(108,141,255,.25);">Matemática</button>
+        <button class="fbtn" onclick="filterCrono('port',this)" style="color:#4ade80;border-color:rgba(74,222,128,.25);">Linguagens</button>
+        <button class="fbtn" onclick="filterCrono('nat',this)" style="color:#fb923c;border-color:rgba(251,146,60,.25);">Natureza</button>
+        <button class="fbtn" onclick="filterCrono('geo',this)" style="color:#38bdf8;border-color:rgba(56,189,248,.25);">Geografia</button>
+        <button class="fbtn" onclick="filterCrono('rev',this)" style="color:#fbbf24;border-color:rgba(251,191,36,.25);">Revisão</button>
+      </div>
+      <div id="crono-list"></div>
+    </div>
+
+    <div id="page-topicos" class="page"></div>
+
+    <div id="page-redacao" class="page">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">Marque o estágio de cada tema. A redação vale até 1000 pontos — é onde há mais a ganhar no ENEM.</p>
+      <div id="red-list"></div>
+    </div>
+
+    <div id="page-simulados" class="page">
+      <div class="meta-card" style="margin-bottom:16px;">
+        <div class="meta-ttl">Registrar Simulado</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+          <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:5px;">Tipo</div>
+            <select id="sim-tp" style="background:var(--bg-700);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:13px;">
+              <option>ENEM – Dia 1</option><option>ENEM – Dia 2</option><option>Redação (0–1000)</option>
+            </select></div>
+          <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:5px;">Acertos</div><input type="number" id="sim-ac" min="0" max="90" placeholder="Ex: 35" style="width:90px;background:var(--bg-700);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:13px;"></div>
+          <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:5px;">Total</div><input type="number" id="sim-tot" min="1" max="90" placeholder="Ex: 45" style="width:90px;background:var(--bg-700);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:13px;"></div>
+          <button onclick="addSim()" style="background:linear-gradient(135deg,var(--accent),#a78bfa);border:none;color:#fff;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;padding:9px 18px;border-radius:var(--radius-sm);cursor:pointer;">+ Adicionar</button>
+        </div>
+      </div>
+      <div id="sim-list"></div>
+    </div>
+  </div>
+</main>
+
+<div id="mob-bar">
+  <div class="mob-nav">
+    <div class="mob-item active" onclick="nav('dashboard',this)" data-m="dashboard"><i data-lucide="layout-dashboard"></i>Início</div>
+    <div class="mob-item" onclick="nav('cronograma',this)" data-m="cronograma"><i data-lucide="calendar-days"></i>Plano</div>
+    <div class="mob-item" onclick="nav('topicos',this)" data-m="topicos"><i data-lucide="book-open"></i>Tópicos</div>
+    <div class="mob-item" onclick="nav('redacao',this)" data-m="redacao"><i data-lucide="pen-line"></i>Redação</div>
+    <div class="mob-item" onclick="nav('simulados',this)" data-m="simulados"><i data-lucide="clipboard-list"></i>Simulados</div>
+  </div>
+</div>
+<div id="toast">✓ Salvo!</div>
+
+<script>
+// ─── CONFIG ────────────────────────────────────────────────
+const PROVA = new Date('2026-11-08T09:00:00');
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+
+const AREAS = {
+  mat:{name:'Matemática',   short:'MAT',color:'#6c8dff',tagBg:'rgba(108,141,255,.15)',tagColor:'#6c8dff'},
+  port:{name:'Linguagens',  short:'PORT',color:'#4ade80',tagBg:'rgba(74,222,128,.15)', tagColor:'#4ade80'},
+  nat:{name:'C. Natureza',  short:'NAT', color:'#fb923c',tagBg:'rgba(251,146,60,.15)', tagColor:'#fb923c'},
+  geo:{name:'Geografia',    short:'GEO', color:'#38bdf8',tagBg:'rgba(56,189,248,.15)', tagColor:'#38bdf8'},
+  rev:{name:'Revisão Final',short:'REV', color:'#fbbf24',tagBg:'rgba(251,191,36,.15)', tagColor:'#fbbf24'},
+};
+
+// Topics per area — indexed arrays for cronograma distribution
+const TOPICS = {
+  mat:[
+    {t:'Porcentagem, razão e proporção',f:95},
+    {t:'Funções do 1º grau — problemas aplicados',f:90},
+    {t:'Funções do 2º grau — vértice e raízes',f:88},
+    {t:'Funções exponenciais e logarítmicas',f:82},
+    {t:'Geometria plana — áreas e perímetros',f:88},
+    {t:'Geometria espacial — volumes e sólidos',f:78},
+    {t:'Probabilidade básica',f:85},
+    {t:'Estatística e análise de dados/gráficos',f:87},
+    {t:'Progressões aritméticas (PA)',f:72},
+    {t:'Progressões geométricas (PG)',f:70},
+    {t:'Trigonometria — seno, cosseno, tangente',f:68},
+    {t:'Análise combinatória e fatorial',f:65},
+  ],
+  port:[
+    {t:'Interpretação e compreensão de textos',f:98},
+    {t:'Gêneros e tipologia textual',f:85},
+    {t:'Coesão e coerência textual',f:80},
+    {t:'Variação linguística e sociolinguística',f:68},
+    {t:'Morfologia — classes gramaticais',f:72},
+    {t:'Concordância verbal e nominal',f:70},
+    {t:'Regência verbal e nominal',f:65},
+    {t:'Modernismo brasileiro — 1ª e 2ª fases',f:82},
+    {t:'Romantismo e Realismo brasileiro',f:75},
+    {t:'Redação dissertativo-argumentativa — estrutura',f:100},
+  ],
+  nat:[
+    {t:'Ecologia — ciclos biogeoquímicos e biomas',f:90},
+    {t:'Genética mendeliana e molecular (DNA/RNA)',f:88},
+    {t:'Fisiologia humana — digestão e respiração',f:82},
+    {t:'Evolução e seleção natural',f:78},
+    {t:'Química orgânica — funções e reações',f:85},
+    {t:'Estequiometria e soluções',f:80},
+    {t:'Termoquímica e calorimetria',f:72},
+    {t:'Eletrostática e eletrodinâmica',f:75},
+    {t:'Cinemática — MU, MUV e queda livre',f:82},
+    {t:'Leis de Newton e dinâmica',f:78},
+  ],
+  geo:[
+    {t:'Geopolítica mundial e globalização',f:92},
+    {t:'Urbanização brasileira e mundial',f:88},
+    {t:'Questões ambientais e climatologia',f:87},
+    {t:'Cartografia e interpretação de mapas',f:72},
+    {t:'Industrialização e desenvolvimento econômico',f:76},
+    {t:'Migrações e dinâmica populacional',f:74},
+    {t:'Regiões brasileiras e desigualdades regionais',f:80},
+    {t:'Blocos econômicos e comércio exterior',f:70},
+  ],
+  rev:[
+    {t:'Revisão Matemática — tópicos com mais erros',f:100},
+    {t:'Revisão Linguagens — interpretação + redação',f:100},
+    {t:'Revisão C. Natureza — Biologia + Química + Física',f:100},
+    {t:'Revisão Geografia — geopolítica + ambiente',f:100},
+    {t:'Simulado completo — Dia 1 (Linguagens + Humanas + Redação)',f:100},
+    {t:'Simulado completo — Dia 2 (Natureza + Matemática)',f:100},
+    {t:'Análise de erros e pontos críticos',f:100},
+  ],
+};
+
+// Day names
+const DFULL = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+
+// Generate week blocks from the Monday of current week to 08/11/2026
+// One area per week, cycling mat→port→nat→geo, last 3 weeks = rev
+function genWeeks(){
+  const d = new Date(TODAY);
+  const dow = d.getDay();
+  d.setDate(d.getDate() - (dow===0 ? 6 : dow-1)); // go to Monday
+
+  const cycle = ['mat','port','nat','geo'];
+  const weeks = [];
+  let ci = 0;
+  let wn = 1;
+  const tmp = new Date(d);
+
+  while(true){
+    const ws = new Date(tmp);
+    const we = new Date(tmp); we.setDate(we.getDate()+6);
+    weeks.push({ws, we, wn: wn++, tmpStart: new Date(tmp)});
+    tmp.setDate(tmp.getDate()+7);
+    if(ws > PROVA) break;
+  }
+
+  // Last 3 = revision
+  const total = weeks.length;
+  const revStart = Math.max(total-3, 0);
+
+  return weeks.map((w,i)=>({
+    ...w,
+    areaId: i >= revStart ? 'rev' : cycle[ci++ % cycle.length]
+  }));
+}
+
+// Assign 2 topics per study day (Mon-Sat), cycling through the area's topic list
+function weekDayTopics(areaId, weekOffset){
+  const tps = TOPICS[areaId];
+  const n = tps.length;
+  const studyDows = [1,2,3,4,5,6]; // Mon–Sat
+  const perDay = 2;
+  const result = {};
+  studyDows.forEach((dow,di)=>{
+    result[dow]=[];
+    for(let t=0;t<perDay;t++){
+      const idx=(weekOffset*studyDows.length*perDay + di*perDay + t) % n;
+      result[dow].push({ti:idx, t:tps[idx].t, f:tps[idx].f});
+    }
+  });
+  return result;
+}
+
+const WEEKS = genWeeks();
+
+// Track area week offset for topic distribution
+const areaOcc={};
+const WDTOPICS = WEEKS.map((w,wi)=>{
+  const aid=w.areaId;
+  if(!areaOcc[aid]) areaOcc[aid]=0;
+  const off=areaOcc[aid]++;
+  return weekDayTopics(aid,off);
+});
+
+// ─── STATE ─────────────────────────────────────────────────
+let ST = {chk:{}, red:{}, sims:[]};
+function save(){ try{localStorage.setItem('planner_en26',JSON.stringify(ST));}catch(e){} }
+function load(){ try{const d=localStorage.getItem('planner_en26');if(d)Object.assign(ST,JSON.parse(d));}catch(e){} }
+
+// ─── STATS ──────────────────────────────────────────────────
+function countDone(){ return Object.values(ST.chk).filter(Boolean).length; }
+function countTotal(){
+  let t=0;
+  WEEKS.forEach((_,wi)=>{
+    const dts=WDTOPICS[wi];
+    [1,2,3,4,5,6].forEach(dow=>{ t+=(dts[dow]||[]).length; });
+  });
+  return t;
+}
+function daysLeft(){ return Math.max(0,Math.ceil((PROVA-new Date())/(864e5))); }
+
+function updStats(){
+  const done=countDone(), total=countTotal();
+  const pct=total?Math.round(done/total*100):0;
+  const days=daysLeft();
+  const left=total-done;
+  const mraw=days>0?left/days:0;
+  const meta=mraw<1?mraw.toFixed(2):Math.ceil(mraw);
+  document.getElementById('s-days').textContent=days;
+  document.getElementById('s-pct').textContent=pct+'%';
+  document.getElementById('s-bar').style.width=pct+'%';
+  document.getElementById('s-done').textContent=done;
+  document.getElementById('s-of').textContent=`de ${total} tópicos`;
+  document.getElementById('s-meta').textContent=meta;
+  document.getElementById('s-meta-sub').textContent=mraw<1?'itens/dia (quase!)':'tópicos por dia';
+  const badge=document.getElementById('sb-badge');
+  if(badge)badge.textContent=total-done;
+}
+
+// ─── NAVIGATION ─────────────────────────────────────────────
+function nav(page, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.mob-item').forEach(n=>n.classList.remove('active'));
+  if(el){
+    el.classList.add('active');
+    const m=document.querySelector(`.mob-item[data-m="${page}"]`);
+    if(m)m.classList.add('active');
+  }
+  const T={dashboard:'Dashboard',cronograma:'Cronograma',topicos:'Tópicos',redacao:'Redação',simulados:'Simulados'};
+  const S={dashboard:'Visão geral do plano',cronograma:'Semana a semana até 08/11/2026',topicos:'Tópicos mais cobrados no ENEM',redacao:'5 temas quentes para 2026',simulados:'Registre seu desempenho'};
+  document.getElementById('pg-title').textContent=T[page]||page;
+  document.getElementById('pg-sub').textContent=S[page]||'';
+  closeSidebar();
+  if(page==='dashboard')renderDash();
+  if(page==='cronograma')renderCrono(currentFilter);
+}
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('mob-overlay').style.display=document.getElementById('sidebar').classList.contains('open')?'block':'none'; }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('mob-overlay').style.display='none'; }
+
+// ─── CRONOGRAMA ─────────────────────────────────────────────
+let currentFilter='all';
+function fmtD(d){ return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}); }
+function isCurr(w){ return TODAY>=w.ws && TODAY<=w.we; }
+function wkKey(wi,dow,ti){ return `w${wi}_d${dow}_t${ti}`; }
+
+function getWkDone(wi){
+  let done=0,total=0;
+  const dts=WDTOPICS[wi];
+  [1,2,3,4,5,6].forEach(dow=>{
+    (dts[dow]||[]).forEach(tp=>{
+      total++;
+      if(ST.chk[wkKey(wi,dow,tp.ti)])done++;
+    });
+  });
+  return{done,total};
+}
+
+function renderCrono(flt){
+  const cont=document.getElementById('crono-list');
+  cont.innerHTML='';
+  WEEKS.forEach((w,wi)=>{
+    const cfg=AREAS[w.areaId];
+    const {done,total}=getWkDone(wi);
+    const pct=total?Math.round(done/total*100):0;
+    const isDone=done===total&&total>0;
+    const curr=isCurr(w);
+    if(flt&&flt!=='all'){
+      if(flt==='current'&&!curr)return;
+      if(flt==='pending'&&isDone)return;
+      if(flt==='done'&&!isDone)return;
+      if(['mat','port','nat','geo','rev'].includes(flt)&&w.areaId!==flt)return;
+    }
+    const block=document.createElement('div');
+    block.className='week-block'+(isDone?' wk-done':'')+(curr?' wk-current':'');
+    block.id=`wb-${wi}`;
+    block.innerHTML=`
+      <div class="week-header" onclick="toggleWk(${wi})">
+        <span class="wk-num">Sem. ${w.wn}</span>
+        <span class="wk-badge" style="background:${cfg.tagBg};color:${cfg.color};">${cfg.name}</span>
+        ${curr?'<span class="curr-tag">ATUAL</span>':''}
+        <span class="wk-dates">${fmtD(w.ws)} – ${fmtD(w.we)}</span>
+        <div class="wk-prog">
+          <div class="wk-bar"><div class="wk-bar-fill" style="width:${pct}%;background:${cfg.color};"></div></div>
+          <span class="wk-pct" style="color:${pct===100?'var(--green)':cfg.color};">${pct}%</span>
+        </div>
+        <span class="wk-arrow">▾</span>
+      </div>
+      <div class="week-days" id="wd-${wi}"></div>`;
+    cont.appendChild(block);
+    if(curr){ block.classList.add('expanded'); renderWkDays(wi); }
+  });
+}
+
+function toggleWk(wi){
+  const b=document.getElementById(`wb-${wi}`);
+  const wasExp=b.classList.contains('expanded');
+  b.classList.toggle('expanded');
+  if(!wasExp) renderWkDays(wi);
+}
+
+function renderWkDays(wi){
+  const cont=document.getElementById(`wd-${wi}`);
+  if(!cont)return;
+  cont.innerHTML='';
+  const w=WEEKS[wi];
+  const cfg=AREAS[w.areaId];
+  const dts=WDTOPICS[wi];
+  for(let dow=1;dow<=7;dow++){
+    const dd=new Date(w.ws); dd.setDate(dd.getDate()+(dow-1));
+    const isToday=dd.getTime()===TODAY.getTime();
+    const isPast=dd<TODAY;
+    const row=document.createElement('div');
+    row.className='day-row';
+    const dc=document.createElement('div');
+    dc.className='day-col';
+    dc.innerHTML=`
+      <div class="day-name" style="${isToday?'color:'+cfg.color:''}">${DFULL[dow===7?0:dow]}</div>
+      <div class="day-date">${fmtD(dd)}</div>
+      ${isToday?`<div class="today-tag" style="color:${cfg.color};">HOJE</div>`:''}`;
+    const dp=document.createElement('div');
+    dp.className='day-topics';
+    if(dow===7){
+      dp.innerHTML='<div class="rest-row">😴 Descanso — revisão leve se quiser</div>';
+    } else {
+      (dts[dow]||[]).forEach(tp=>{
+        const key=wkKey(wi,dow,tp.ti);
+        const done=!!ST.chk[key];
+        const item=document.createElement('div');
+        item.className='t-item'+(done?' done':'');
+        item.innerHTML=`
+          <div class="t-check"><svg class="t-chk-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="t-text">${tp.t}</span>
+          <span class="t-freq">${tp.f}%</span>`;
+        item.onclick=()=>toggleT(key,item,wi);
+        dp.appendChild(item);
+      });
+    }
+    row.appendChild(dc);
+    row.appendChild(dp);
+    cont.appendChild(row);
+  }
+}
+
+function toggleT(key,el,wi){
+  ST.chk[key]=!ST.chk[key];
+  el.classList.toggle('done',ST.chk[key]);
+  updStats(); save();
+  const{done,total}=getWkDone(wi);
+  const pct=total?Math.round(done/total*100):0;
+  const cfg=AREAS[WEEKS[wi].areaId];
+  const bf=document.querySelector(`#wb-${wi} .wk-bar-fill`);
+  const pp=document.querySelector(`#wb-${wi} .wk-pct`);
+  const bb=document.getElementById(`wb-${wi}`);
+  if(bf)bf.style.width=pct+'%';
+  if(pp){pp.textContent=pct+'%';pp.style.color=pct===100?'var(--green)':cfg.color;}
+  if(bb)bb.classList.toggle('wk-done',done===total&&total>0);
+  toast(ST.chk[key]?'✓ Tópico concluído!':'↩ Desmarcado');
+}
+
+function filterCrono(type,btn){
+  currentFilter=type;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCrono(type);
+}
+
+// ─── TÓPICOS PAGE ────────────────────────────────────────────
+function buildTopicos(){
+  const cont=document.getElementById('page-topicos');
+  cont.innerHTML='';
+  Object.entries(TOPICS).filter(([k])=>k!=='rev').forEach(([aid,tps])=>{
+    const cfg=AREAS[aid];
+    const done=tps.filter((_,i)=>ST.chk[`pg_${aid}_${i}`]).length;
+    const pct=Math.round(done/tps.length*100);
+    const sec=document.createElement('div');
+    sec.style.marginBottom='28px';
+    sec.innerHTML=`
+      <div class="area-hdr">
+        <div style="width:10px;height:10px;border-radius:50%;background:${cfg.color};flex-shrink:0;"></div>
+        <div class="area-title">${cfg.name}</div>
+        <div class="area-cnt">${done}/${tps.length}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+          <div style="width:80px;height:4px;background:var(--bg-700);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${cfg.color};border-radius:2px;"></div></div>
+          <span style="font-size:13px;font-weight:600;font-family:'JetBrains Mono',monospace;color:${cfg.color};">${pct}%</span>
+        </div>
+      </div>
+      <div class="cards-grid" id="tg-${aid}"></div>`;
+    cont.appendChild(sec);
+    const grid=sec.querySelector(`#tg-${aid}`);
+    tps.forEach((tp,i)=>{
+      const key=`pg_${aid}_${i}`;
+      const isDone=!!ST.chk[key];
+      const card=document.createElement('div');
+      card.className='s-card'+(isDone?' done':'');
+      card.innerHTML=`
+        <div class="s-chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="s-info">
+          <div class="s-title">${tp.t}</div>
+          <div class="s-meta">
+            <span class="s-tag" style="background:${cfg.tagBg};color:${cfg.color};">${cfg.short}</span>
+            <span class="s-freq">${tp.f}% freq.</span>
+          </div>
+        </div>`;
+      card.onclick=()=>{
+        ST.chk[key]=!ST.chk[key];
+        card.classList.toggle('done',ST.chk[key]);
+        updStats(); save();
+        toast(ST.chk[key]?'✓ Concluído!':'↩ Desmarcado');
+      };
+      grid.appendChild(card);
+    });
+  });
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────
+const TIPS=[
+  'Interpretação de Textos cobre 34% das questões de Português no BB e no ENEM.',
+  'Porcentagem aparece em ~20% das questões de Matemática. Domine primeiro.',
+  'Em Natureza, Ecologia e Genética juntas somam >30% da prova.',
+  'A Redação vale 1000 pontos — uma nota acima de 800 muda tudo.',
+  'Estude com provas anteriores: o ENEM tem padrões claros.',
+  'Use o método Pomodoro: 25min foco, 5min pausa.',
+  'Revise sempre no dia seguinte. Repetição consolida a memória.',
+  'Geopolítica e Urbanização são os temas favoritos do ENEM em Geografia.',
+  'Uma semana por matéria cria imersão total — muito mais eficaz!',
+  'Durma bem nas semanas de prova. O sono consolida o aprendizado.',
+];
+
+function renderDash(){
+  const done=countDone(),total=countTotal();
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('d-pct').textContent=pct+'%';
+  document.getElementById('d-done-txt').textContent=`${done} de ${total} concluídos`;
+  setTimeout(()=>{ document.getElementById('d-bar').style.width=pct+'%'; },80);
+  const sb=document.getElementById('d-status');
+  const st=document.getElementById('d-status-txt');
+  if(pct>=70){sb.className='status-badge st-ok';st.textContent='Arrasando! 🎉';}
+  else if(pct>=35){sb.className='status-badge st-warn';st.textContent='Ritmo ok — pode acelerar!';}
+  else{sb.className='status-badge st-alert';st.textContent='Precisa acelerar os estudos!';}
+
+  // Current week
+  const cw=WEEKS.find(w=>isCurr(w));
+  const cwEl=document.getElementById('d-week');
+  if(cw){
+    const wi=WEEKS.indexOf(cw);
+    const cfg=AREAS[cw.areaId];
+    const{done:wd,total:wt}=getWkDone(wi);
+    const wp=wt?Math.round(wd/wt*100):0;
+    cwEl.innerHTML=`
+      <div style="margin-bottom:10px;">
+        <div style="font-size:20px;font-weight:700;color:${cfg.color};">${cfg.name}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${fmtD(cw.ws)} – ${fmtD(cw.we)} · Semana ${cw.wn}</div>
+      </div>
+      <div style="height:6px;background:var(--bg-700);border-radius:3px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:${wp}%;background:${cfg.color};border-radius:3px;transition:width .5s;"></div></div>
+      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">${wd}/${wt} tópicos desta semana concluídos</div>
+      <button onclick="nav('cronograma',document.querySelector('.nav-item:nth-child(6)'))" style="background:rgba(108,141,255,.12);border:1px solid rgba(108,141,255,.25);color:var(--accent);font-family:'Sora',sans-serif;font-size:12px;font-weight:600;padding:7px 14px;border-radius:var(--radius-sm);cursor:pointer;">Ir para o cronograma →</button>`;
+  }
+
+  // Area breakdown
+  document.getElementById('d-areas').innerHTML=Object.entries(TOPICS).filter(([k])=>k!=='rev').map(([aid,tps])=>{
+    const cfg=AREAS[aid];
+    const done2=tps.filter((_,i)=>ST.chk[`pg_${aid}_${i}`]).length;
+    const pct2=Math.round(done2/tps.length*100);
+    return`<div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+        <span style="font-size:12px;font-weight:500;">${cfg.name}</span>
+        <span style="font-size:12px;font-family:'JetBrains Mono',monospace;color:${cfg.color};">${done2}/${tps.length}</span>
+      </div>
+      <div style="height:4px;background:var(--bg-700);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${pct2}%;background:${cfg.color};border-radius:2px;transition:width .5s;"></div></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('d-tip').innerHTML=`<div style="font-size:24px;margin-bottom:10px;">💡</div><p>${TIPS[new Date().getDate()%TIPS.length]}</p>`;
+  lucide.createIcons();
+}
+
+// ─── REDAÇÃO ─────────────────────────────────────────────────
+const RTEMAS=[
+  {title:'Invisibilidade e exclusão das pessoas em situação de rua no Brasil',desc:'Direitos humanos, políticas públicas e desigualdade social.'},
+  {title:'Desafios da saúde mental juvenil na era digital',desc:'Redes sociais, pressão por desempenho e papel do Estado.'},
+  {title:'Desinformação e a crise da democracia brasileira',desc:'Fake news, liberdade de expressão e responsabilidade das plataformas.'},
+  {title:'Impactos das mudanças climáticas nas populações vulneráveis',desc:'Justiça climática e papel do Brasil nas negociações internacionais.'},
+  {title:'Acesso à educação de qualidade como direito universal',desc:'Desigualdades educacionais e o papel da tecnologia na democratização.'},
+];
+const STAGES=['Esqueleto','Rascunho','Versão Final'];
+function buildRedacao(){
+  const cont=document.getElementById('red-list');
+  cont.innerHTML='';
+  RTEMAS.forEach((t,ti)=>{
+    const div=document.createElement('div');
+    div.className='red-card';
+    div.innerHTML=`
+      <div class="red-title">${ti+1}. ${t.title}</div>
+      <div class="red-desc">${t.desc}</div>
+      <div class="red-btns">
+        ${STAGES.map((s,si)=>{
+          const k=`r_${ti}_${si}`;
+          return`<button class="stg-btn ${ST.red[k]?'active':''}" onclick="toggleStg('${k}',this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><polyline points="20 6 9 17 4 12"/></svg>${s}</button>`;
+        }).join('')}
+      </div>`;
+    cont.appendChild(div);
+  });
+}
+function toggleStg(k,el){ ST.red[k]=!ST.red[k]; el.classList.toggle('active',ST.red[k]); save(); toast(ST.red[k]?'✓ Etapa marcada!':'↩ Desmarcada'); }
+
+// ─── SIMULADOS ────────────────────────────────────────────────
+function addSim(){
+  const tp=document.getElementById('sim-tp').value;
+  const ac=parseInt(document.getElementById('sim-ac').value)||0;
+  const tot=parseInt(document.getElementById('sim-tot').value)||1;
+  const pct=Math.round(ac/tot*100);
+  ST.sims.unshift({tp,ac,tot,pct,date:new Date().toLocaleDateString('pt-BR')});
+  save(); renderSims();
+  document.getElementById('sim-ac').value='';
+  document.getElementById('sim-tot').value='';
+  toast('✓ Simulado registrado!');
+}
+function renderSims(){
+  const c=document.getElementById('sim-list');
+  if(!ST.sims.length){c.innerHTML='<div class="meta-card" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">Nenhum simulado ainda. Adicione acima!</div>';return;}
+  c.innerHTML=ST.sims.map((s,i)=>`
+    <div class="meta-card" style="display:flex;align-items:center;gap:14px;padding:14px 18px;margin-bottom:8px;">
+      <div style="font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace;color:${s.pct>=70?'var(--green)':s.pct>=50?'var(--gold)':'var(--red)'};">${s.pct}%</div>
+      <div style="flex:1;"><div style="font-size:13px;font-weight:600;">${s.tp}</div><div style="font-size:12px;color:var(--text-muted);">${s.ac} acertos de ${s.tot} · ${s.date}</div></div>
+      <div style="width:80px;height:4px;background:var(--bg-700);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${s.pct}%;background:${s.pct>=70?'var(--green)':s.pct>=50?'var(--gold)':'var(--red)'};border-radius:2px;"></div></div>
+      <button onclick="delSim(${i})" style="background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>`).join('');
+}
+function delSim(i){ ST.sims.splice(i,1); save(); renderSims(); }
+
+// ─── UTILS ────────────────────────────────────────────────────
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('show'),2000); }
+function recalc(){ updStats(); toast('🔄 Rota recalculada!'); }
+function resetAll(){ if(!confirm('Resetar todo o progresso? Não pode ser desfeito.'))return; ST={chk:{},red:{},sims:[]}; save(); location.reload(); }
+function checkMob(){ document.getElementById('hamburger').style.display=window.innerWidth<=768?'block':'none'; }
+
+// ─── INIT ─────────────────────────────────────────────────────
+load();
+buildTopicos();
+buildRedacao();
+updStats();
+renderDash();
+renderSims();
+checkMob();
+window.addEventListener('resize',checkMob);
+lucide.createIcons();
+</script>
+</body>
+</html>
